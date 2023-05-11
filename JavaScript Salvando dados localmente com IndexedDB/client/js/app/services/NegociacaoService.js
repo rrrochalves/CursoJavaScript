@@ -77,6 +77,42 @@ class NegociacaoService {
 
             }).catch(erro => reject(erro));
         });
-    }    
+    } 
+    
+    cadastra(negociacao){
+        return ConnectionFactory.getConnection()
+            .then(connection => new NegociacaoDao(connection))
+            .then(dao => dao.adiciona(negociacao))
+            .then(() => "Negociação adicionada com sucesso!")
+        .catch(() => {throw new Error("Erro ao adicionar negociação!")});
+    }
+
+    lista(){
+        return ConnectionFactory.getConnection()
+                .then(connection => new NegociacaoDao(connection))
+                .then(dao => dao.listarTodos())
+            .catch(() => {throw new Error("Erro ao listar negociação!")});
+    }
+
+    apaga() {
+        return ConnectionFactory
+                .getConnection()
+                .then(connection => new NegociacaoDao(connection))
+                .then(dao => dao.apagarTodos())
+                .then(() => "Negociações apagadas com Sucesso")
+            .catch((erro) => this._mensagem.texto = erro);
+    }
+
+    importar(listaAtual){
+        return this.obterNegociacoes()
+            .then(negociacoes => 
+                negociacoes.filter(negociacao => 
+                !listaAtual.some(negociacaoExistente => 
+                    JSON.stringify(negociacao) == JSON.stringify(negociacaoExistente))))
+                    .catch((erro) => {
+                        console.log(erro);
+                        throw new Error("Não foi possivel buscar as negociações!");
+                    });
+    }
 }
 
